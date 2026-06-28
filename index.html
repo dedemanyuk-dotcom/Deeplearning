@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EduDeep - Aplikasi Deep Learning SD</title>
+    
+    <!-- PWA Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Libraries (Sesuai Syarat) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="glass-panel active">
+        <h1 class="bounce">🚀 EduDeep</h1>
+        <p>Memuat Masa Depanmu...</p>
+        <div class="loader"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen glass-panel">
+        <div class="login-box glass">
+            <h2>👋 Selamat Datang!</h2>
+            <p>Mulai petualangan belajarmu hari ini.</p>
+            <form id="login-form">
+                <input type="text" id="student-name" placeholder="Nama Panggilan Kamu" required>
+                <select id="student-class" required>
+                    <option value="" disabled selected>Pilih Kelas</option>
+                    <option value="1">Kelas 1</option>
+                    <option value="2">Kelas 2</option>
+                    <option value="3">Kelas 3</option>
+                    <option value="4">Kelas 4</option>
+                    <option value="5">Kelas 5</option>
+                    <option value="6">Kelas 6</option>
+                </select>
+                <div class="avatar-selection">
+                    <label>Pilih Avatar:</label>
+                    <div class="avatars" id="avatar-container">
+                        <span class="avatar-option selected" data-avatar="👦">👦</span>
+                        <span class="avatar-option" data-avatar="👧">👧</span>
+                        <span class="avatar-option" data-avatar="🦊">🦊</span>
+                        <span class="avatar-option" data-avatar="🤖">🤖</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Mulai Belajar 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="screen">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass">
+            <div class="brand">🚀 EduDeep</div>
+            <ul class="nav-links">
+                <li onclick="app.navigate('dashboard')" class="active">🏠 Dashboard</li>
+                <li onclick="app.navigate('materi')">📚 Materi</li>
+                <li onclick="app.navigate('deep-learning')">🧠 Deep Learning</li>
+                <li onclick="app.navigate('quiz')">📝 Quiz & Game</li>
+                <li onclick="app.navigate('tutor')">🤖 AI Tutor</li>
+                <li onclick="app.navigate('portfolio')">🏆 Portofolio</li>
+                <li onclick="app.navigate('settings')">⚙️ Pengaturan</li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <header class="topbar glass">
+                <div class="user-info">
+                    <span id="user-avatar" class="avatar-sm">👦</span>
+                    <div>
+                        <h3 id="user-name-display">Siswa</h3>
+                        <p id="user-class-display">Kelas -</p>
+                    </div>
+                </div>
+                <div class="top-stats">
+                    <span class="badge">🔥 Streak: <span id="streak-count">1</span></span>
+                    <span class="badge">⭐ XP: <span id="xp-count">0</span></span>
+                    <button class="icon-btn" onclick="app.toggleTheme()">🌓</button>
+                </div>
+            </header>
+
+            <div class="scrollable-content">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="page active">
+                    <h2>Beranda</h2>
+                    <div class="grid-3">
+                        <div class="card glass">
+                            <h3>Progress Belajar</h3>
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                        <div class="card glass">
+                            <h3>Target Harian ✅</h3>
+                            <ul id="daily-targets" class="checklist">
+                                <li><input type="checkbox" disabled> Login harian</li>
+                                <li><input type="checkbox" disabled> Baca 1 Materi</li>
+                                <li><input type="checkbox" disabled> Selesaikan 1 Quiz</li>
+                            </ul>
+                            <h3 class="mt-4">Motivasi Hari Ini 💡</h3>
+                            <p id="daily-motivation" class="quote">"Belajar hari ini, memimpin esok hari!"</p>
+                        </div>
+                        <div class="card glass">
+                            <h3>Badge Kamu 🎖️</h3>
+                            <div class="badge-grid" id="badge-container">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Materi Section -->
+                <section id="materi" class="page hidden">
+                    <h2>Materi Pelajaran</h2>
+                    <div class="filter-bar mb-4">
+                        <input type="text" id="search-materi" placeholder="Cari materi..." onkeyup="app.filterMateri()">
+                    </div>
+                    <div class="grid-4" id="materi-container">
+                        <!-- Generated by JS -->
+                    </div>
+                </section>
+
+                <!-- Deep Learning Form Section -->
+                <section id="deep-learning" class="page hidden">
+                    <h2>Tahapan Deep Learning 🧠</h2>
+                    <p>Isi jurnal aktivitas belajarmu sesuai tahapan berikut:</p>
+                    <form id="dl-form" class="card glass">
+                        <div class="form-group">
+                            <label>1. Mengamati 👀</label>
+                            <textarea placeholder="Apa yang kamu lihat/dengar hari ini?" id="dl-mengamati"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>2. Menanya ❓</label>
+                            <textarea placeholder="Pertanyaan apa yang muncul di pikiranmu?" id="dl-menanya"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>3. Mencoba 🛠️</label>
+                            <textarea placeholder="Eksperimen atau latihan apa yang kamu lakukan?" id="dl-mencoba"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>4. Menalar 💡</label>
+                            <textarea placeholder="Apa hubungan antara informasi yang kamu dapat?" id="dl-menalar"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>5. Refleksi 🪞</label>
+                            <textarea placeholder="Apa yang kamu pelajari dari semua ini?" id="dl-refleksi"></textarea>
+                        </div>
+                        <button type="button" class="btn-primary w-100" onclick="app.saveDeepLearning()">Simpan Jurnal & Dapatkan XP!</button>
+                    </form>
+                </section>
+
+                <!-- AI Tutor Section -->
+                <section id="tutor" class="page hidden">
+                    <h2>Tanya AI Tutor Lokal 🤖</h2>
+                    <div class="chat-container card glass">
+                        <div class="chat-box" id="chat-box">
+                            <div class="msg ai">Halo! Aku tutor lokalmu. Ada yang ingin ditanyakan tentang Matematika, IPA, atau lainnya?</div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Ketik pertanyaanmu di sini..." onkeypress="app.handleChatEnter(event)">
+                            <button onclick="app.sendChat()" class="btn-primary">Kirim</button>
+                        </div>
+                    </div>
+                </section>
+
+                 <!-- Portfolio & Certificate Section -->
+                 <section id="portfolio" class="page hidden">
+                    <h2>Portofolio & Sertifikat 🏆</h2>
+                    <div class="card glass text-center" id="certificate-card">
+                        <h3>Sertifikat Kelulusan Level</h3>
+                        <div id="cert-preview" class="cert-preview">
+                            <h1 style="color: #2563EB;">EduDeep Certificate</h1>
+                            <p>Diberikan Kepada:</p>
+                            <h2 id="cert-name">Siswa</h2>
+                            <p>Atas prestasinya mengumpulkan <span id="cert-xp">0</span> XP.</p>
+                            <div id="qrcode" style="margin: 20px auto; width: 100px;"></div>
+                        </div>
+                        <button class="btn-secondary mt-4" onclick="app.generatePDF()">Unduh PDF Sertifikat</button>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="page hidden">
+                    <h2>Pengaturan ⚙️</h2>
+                    <div class="card glass max-w-md">
+                        <button class="btn-secondary w-100 mb-4" onclick="app.exportData()">Export Data (JSON)</button>
+                        <button class="btn-danger w-100 mb-4" onclick="app.logout()">Keluar & Reset Data</button>
+                        <p class="text-sm">Versi 1.0 - PWA Offline Ready</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">Notifikasi</div>
+    
+    <!-- Confetti Canvas -->
+    <canvas id="confetti" class="pointer-events-none"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
